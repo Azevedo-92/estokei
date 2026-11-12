@@ -152,6 +152,78 @@ export type Database = {
         }
         Relationships: []
       }
+      products: {
+        Row: {
+          active: boolean
+          barcode: string | null
+          code: string
+          cost_price: number
+          created_at: string
+          id: string
+          last_updated_by: string | null
+          low_stock: boolean | null
+          min_stock: number
+          name: string
+          organization_id: string
+          sale_price: number
+          stock_quantity: number
+          supplier_id: string | null
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          barcode?: string | null
+          code: string
+          cost_price?: number
+          created_at?: string
+          id?: string
+          last_updated_by?: string | null
+          low_stock?: boolean | null
+          min_stock?: number
+          name: string
+          organization_id: string
+          sale_price?: number
+          stock_quantity?: number
+          supplier_id?: string | null
+          unit?: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          barcode?: string | null
+          code?: string
+          cost_price?: number
+          created_at?: string
+          id?: string
+          last_updated_by?: string | null
+          low_stock?: boolean | null
+          min_stock?: number
+          name?: string
+          organization_id?: string
+          sale_price?: number
+          stock_quantity?: number
+          supplier_id?: string | null
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_supplier_id_organization_id_fkey"
+            columns: ["supplier_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id", "organization_id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           email: string | null
@@ -172,6 +244,73 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      stock_movements: {
+        Row: {
+          balance_after: number
+          created_at: string
+          created_by: string | null
+          id: string
+          kind: string
+          notes: string | null
+          organization_id: string
+          product_id: string
+          quantity_delta: number
+          reference: string | null
+          supplier_id: string | null
+          unit_cost: number | null
+        }
+        Insert: {
+          balance_after: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind: string
+          notes?: string | null
+          organization_id: string
+          product_id: string
+          quantity_delta: number
+          reference?: string | null
+          supplier_id?: string | null
+          unit_cost?: number | null
+        }
+        Update: {
+          balance_after?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind?: string
+          notes?: string | null
+          organization_id?: string
+          product_id?: string
+          quantity_delta?: number
+          reference?: string | null
+          supplier_id?: string | null
+          unit_cost?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_movements_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_movements_product_id_organization_id_fkey"
+            columns: ["product_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id", "organization_id"]
+          },
+          {
+            foreignKeyName: "stock_movements_supplier_id_organization_id_fkey"
+            columns: ["supplier_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id", "organization_id"]
+          },
+        ]
       }
       subscription_payments: {
         Row: {
@@ -297,6 +436,59 @@ export type Database = {
           },
         ]
       }
+      suppliers: {
+        Row: {
+          active: boolean
+          contact_name: string | null
+          created_at: string
+          document: string | null
+          email: string | null
+          id: string
+          last_updated_by: string | null
+          name: string
+          notes: string | null
+          organization_id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          contact_name?: string | null
+          created_at?: string
+          document?: string | null
+          email?: string | null
+          id?: string
+          last_updated_by?: string | null
+          name: string
+          notes?: string | null
+          organization_id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          contact_name?: string | null
+          created_at?: string
+          document?: string | null
+          email?: string | null
+          id?: string
+          last_updated_by?: string | null
+          name?: string
+          notes?: string | null
+          organization_id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "suppliers_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       support_requests: {
         Row: {
           created_at: string
@@ -365,6 +557,37 @@ export type Database = {
           role: string
           token: string
         }[]
+      }
+      record_stock_movement: {
+        Args: {
+          p_kind: string
+          p_notes?: string
+          p_product_id: string
+          p_quantity: number
+          p_reference?: string
+          p_supplier_id?: string
+          p_unit_cost?: number
+        }
+        Returns: {
+          balance_after: number
+          created_at: string
+          created_by: string | null
+          id: string
+          kind: string
+          notes: string | null
+          organization_id: string
+          product_id: string
+          quantity_delta: number
+          reference: string | null
+          supplier_id: string | null
+          unit_cost: number | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "stock_movements"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       user_admin_organization_ids: { Args: never; Returns: string[] }
       user_organization_ids: { Args: never; Returns: string[] }

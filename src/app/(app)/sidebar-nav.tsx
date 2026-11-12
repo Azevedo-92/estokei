@@ -4,6 +4,9 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard,
+  Package,
+  ArrowLeftRight,
+  Truck,
   UsersRound,
   Palette,
   LifeBuoy,
@@ -23,6 +26,9 @@ type NavItem = {
 
 const NAV: NavItem[] = [
   { href: '/painel', label: 'Painel', icon: LayoutDashboard, match: (p) => p === '/painel' },
+  { href: '/produtos', label: 'Produtos', icon: Package, match: (p) => p.startsWith('/produtos') },
+  { href: '/estoque', label: 'Estoque', icon: ArrowLeftRight, match: (p) => p.startsWith('/estoque') },
+  { href: '/fornecedores', label: 'Fornecedores', icon: Truck, match: (p) => p.startsWith('/fornecedores') },
   { href: '/equipe', label: 'Equipe', icon: UsersRound, match: (p) => p.startsWith('/equipe') },
   {
     href: '/configuracoes/marca',

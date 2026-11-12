@@ -14,9 +14,8 @@ alterado a partir daqui. Mantido pela Client Cycle Consultoria em TI Ltda.
 assinatura cobrada pelo Asaas (veja "Cobrança"). A primeira liberação de cada
 empresa é manual, em `/plataforma`.
 
-**Estado atual:** só a fundação SaaS está pronta. Os módulos da loja
-(produtos, estoque, PDV, orçamentos, financeiro) entram nas próximas etapas;
-o `/painel` é provisório. **O Estokei ainda não emite nota fiscal de venda**
+**Estado atual:** fundação SaaS + produtos, fornecedores e estoque prontos.
+PDV, clientes, orçamentos e financeiro entram nas próximas etapas. **O Estokei ainda não emite nota fiscal de venda**
 (NFC-e/NF-e) — não prometa isso em texto nenhum até existir.
 
 - Produção: https://estokei.app.br (Vercel) — domínio a registrar/apontar
@@ -41,7 +40,7 @@ npm test           # testes (Vitest) — regras puras de src/lib
 ```
 
 Os testes (`src/**/*.test.ts`) cobrem as regras puras: datas e fuso
-(`utils`), planos e situação da cobrança (`billing`), nota fiscal da assinatura
+(`utils`), números e busca do estoque (`stock`), planos e situação da cobrança (`billing`), nota fiscal da assinatura
 (`nfse`) e permissão da plataforma (`platform`).
 Rodam com fuso de Nova York de propósito — a regra tem que valer em qualquer
 fuso. A esteira de deploy roda `npm test` antes das migrations. Mexeu numa regra
@@ -208,7 +207,32 @@ aqui).
 `user_organization_ids` e `user_admin_organization_ids` (base do RLS),
 `create_organization_and_join`, `accept_invite`, `get_invite_summary`,
 `my_pending_invites`, `handle_new_user` (cria `profiles`), `protect_last_owner`
-(impede remover o último dono), `touch_updated_at`, `set_last_updated_by`.
+(impede remover o último dono), `touch_updated_at`, `set_last_updated_by`,
+`products_set_code` e `record_stock_movement` (veja "Produtos, fornecedores e
+estoque").
+
+## Produtos, fornecedores e estoque
+
+Migration `20261112190000_produtos_estoque.sql`. Telas em `/produtos`,
+`/estoque` e `/fornecedores`; regras puras (número BR, busca, paginação) em
+`src/lib/stock.ts` (testada).
+
+- `suppliers` — fornecedores (CNPJ/CPF só dígitos).
+- `products` — `code` único por empresa (vazio no insert → trigger
+  `products_set_code` gera P00001, P00002…), `barcode` único por empresa,
+  `stock_quantity`, `min_stock` e `low_stock` (coluna gerada: `min_stock > 0 and
+  stock_quantity <= min_stock` — o PostgREST não compara duas colunas).
+- `stock_movements` — histórico só de leitura para usuários (sem insert,
+  update ou delete): `kind` entrada/perda/ajuste/venda/estorno,
+  `quantity_delta`, `balance_after`.
+
+**O saldo só muda pela função `record_stock_movement`** (SECURITY DEFINER,
+trava a linha do produto com `FOR UPDATE`, recusa saldo negativo, grava o
+movimento e o saldo juntos; entrada com custo atualiza `cost_price`). Os
+grants de coluna impedem `update products set stock_quantity` direto. As
+mensagens de erro da função são escritas para o usuário e repassadas pela
+action. Cadastrar produto, fornecedor e movimentar estoque: só dono/admin
+(RLS + checagem na action); todos da equipe consultam.
 
 ## Módulos da loja (a construir)
 
