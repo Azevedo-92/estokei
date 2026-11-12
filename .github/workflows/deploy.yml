@@ -1,0 +1,98 @@
+# Deploy dos dois ambientes:
+#   push na staging → ambiente de testes (banco estokei-staging)
+#   push na main    → produção (estokei.app.br)
+#
+# Cada push passa por 3 etapas, nesta ordem:
+#   1. Checagem de tipos e testes (npm test) — código que não compila ou
+#      quebra uma regra testada não chega no banco.
+#   2. Migrations — aplica as pendentes em supabase/migrations/ no banco
+#      do ambiente.
+#   3. Deploy na Vercel — deploy hook da branch, só depois do banco pronto.
+#
+# Se qualquer etapa falhar, as seguintes não rodam e o ambiente continua na
+# versão anterior. O deploy automático da Vercel nessas duas branches está
+# desligado em vercel.json (git.deploymentEnabled) para não pular essa ordem.
+#
+# Secrets (Settings > Secrets and variables > Actions):
+#   SUPABASE_DB_PASSWORD / SUPABASE_DB_PASSWORD_STAGING
+#   VERCEL_DEPLOY_HOOK_URL / VERCEL_DEPLOY_HOOK_URL_STAGING
+# A escolha é feita por branch em shell e falha fechado: branch desconhecida
+# ou secret vazio param o deploy, nunca caem no ambiente do outro.
+
+name: Deploy
+
+on:
+  push:
+    branches: [main, staging]
+  workflow_dispatch:
+
+# Um deploy por ambiente de cada vez; um push novo espera o anterior terminar
+# em vez de cancelá-lo no meio de uma migration.
+concurrency:
+  group: deploy-${{ github.ref_name }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  SUPABASE_POOLER_HOST: aws-0-sa-east-1.pooler.supabase.com
+
+jobs:
+  verificar:
+    name: Checagem de tipos
+    if: github.ref_name == 'main' || github.ref_name == 'staging'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx next typegen
+      - run: npx tsc --noEmit
+      - run: npm test
+
+  migrations:
+    name: Migrations do banco
+    needs: verificar
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.117.0
+      - name: Aplicar migrations pendentes
+        env:
+          SENHA_PRODUCAO: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          SENHA_TESTES: ${{ secrets.SUPABASE_DB_PASSWORD_STAGING }}
+        run: |
+          case "$GITHUB_REF_NAME" in
+            main)    REF=bmgidnbomikeconlfzgr; SENHA="$SENHA_PRODUCAO" ;;
+            staging) REF=frwfxuwpxephhugylgkg; SENHA="$SENHA_TESTES" ;;
+            *) echo "A branch $GITHUB_REF_NAME não tem ambiente de deploy."; exit 1 ;;
+          esac
+          [ -n "$SENHA" ] || { echo "Senha do banco ausente para $GITHUB_REF_NAME."; exit 1; }
+          ENC=$(SENHA="$SENHA" node -e "process.stdout.write(encodeURIComponent(process.env.SENHA))")
+          echo "::add-mask::$ENC"
+          echo "Ambiente: $GITHUB_REF_NAME → projeto Supabase $REF"
+          supabase db push --db-url "postgresql://postgres.${REF}:${ENC}@${SUPABASE_POOLER_HOST}:5432/postgres"
+
+  deploy:
+    name: Deploy na Vercel
+    needs: migrations
+    runs-on: ubuntu-latest
+    steps:
+      - name: Disparar deploy do ambiente
+        env:
+          HOOK_PRODUCAO: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+          HOOK_TESTES: ${{ secrets.VERCEL_DEPLOY_HOOK_URL_STAGING }}
+        run: |
+          case "$GITHUB_REF_NAME" in
+            main)    HOOK="$HOOK_PRODUCAO" ;;
+            staging) HOOK="$HOOK_TESTES" ;;
+            *) echo "A branch $GITHUB_REF_NAME não tem ambiente de deploy."; exit 1 ;;
+          esac
+          [ -n "$HOOK" ] || { echo "Deploy hook ausente para $GITHUB_REF_NAME."; exit 1; }
+          curl --fail --silent --show-error -X POST "$HOOK" > /dev/null
