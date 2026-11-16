@@ -1,0 +1,1353 @@
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.18"
+  }
+  public: {
+    Tables: {
+      customers: {
+        Row: {
+          active: boolean
+          address: string | null
+          created_at: string
+          document: string | null
+          email: string | null
+          id: string
+          last_updated_by: string | null
+          name: string
+          notes: string | null
+          organization_id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          address?: string | null
+          created_at?: string
+          document?: string | null
+          email?: string | null
+          id?: string
+          last_updated_by?: string | null
+          name: string
+          notes?: string | null
+          organization_id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          address?: string | null
+          created_at?: string
+          document?: string | null
+          email?: string | null
+          id?: string
+          last_updated_by?: string | null
+          name?: string
+          notes?: string | null
+          organization_id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customers_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_entries: {
+        Row: {
+          amount: number
+          category: string | null
+          created_at: string
+          created_by: string | null
+          customer_id: string | null
+          description: string
+          due_date: string
+          group_id: string | null
+          id: string
+          installment: number | null
+          installments: number | null
+          kind: string
+          last_updated_by: string | null
+          notes: string | null
+          organization_id: string
+          paid_amount: number | null
+          paid_at: string | null
+          payment_method: string | null
+          sale_id: string | null
+          status: string
+          supplier_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          description: string
+          due_date: string
+          group_id?: string | null
+          id?: string
+          installment?: number | null
+          installments?: number | null
+          kind: string
+          last_updated_by?: string | null
+          notes?: string | null
+          organization_id: string
+          paid_amount?: number | null
+          paid_at?: string | null
+          payment_method?: string | null
+          sale_id?: string | null
+          status?: string
+          supplier_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          description?: string
+          due_date?: string
+          group_id?: string | null
+          id?: string
+          installment?: number | null
+          installments?: number | null
+          kind?: string
+          last_updated_by?: string | null
+          notes?: string | null
+          organization_id?: string
+          paid_amount?: number | null
+          paid_at?: string | null
+          payment_method?: string | null
+          sale_id?: string | null
+          status?: string
+          supplier_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_entries_customer_id_organization_id_fkey"
+            columns: ["customer_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id", "organization_id"]
+          },
+          {
+            foreignKeyName: "financial_entries_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_entries_sale_id_organization_id_fkey"
+            columns: ["sale_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
+            referencedColumns: ["id", "organization_id"]
+          },
+          {
+            foreignKeyName: "financial_entries_supplier_id_organization_id_fkey"
+            columns: ["supplier_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id", "organization_id"]
+          },
+        ]
+      }
+      invites: {
+        Row: {
+          accepted_at: string | null
+          accepted_by: string | null
+          created_at: string
+          email: string | null
+          expires_at: string
+          id: string
+          invited_by: string | null
+          organization_id: string
+          role: string
+          token: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          email?: string | null
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          organization_id: string
+          role?: string
+          token: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          email?: string | null
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          organization_id?: string
+          role?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invites_invited_by_profile_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "invites_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_members: {
+        Row: {
+          created_at: string
+          id: string
+          invited_by: string | null
+          organization_id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          invited_by?: string | null
+          organization_id: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          invited_by?: string | null
+          organization_id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_members_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_members_user_profile_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          created_at: string
+          id: string
+          is_demo: boolean
+          logo_url: string | null
+          name: string
+          primary_color: string | null
+          slug: string
+          status: string
+          status_changed_at: string | null
+          status_reason: string | null
+          store_address: string | null
+          store_document: string | null
+          store_email: string | null
+          store_phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_demo?: boolean
+          logo_url?: string | null
+          name: string
+          primary_color?: string | null
+          slug: string
+          status?: string
+          status_changed_at?: string | null
+          status_reason?: string | null
+          store_address?: string | null
+          store_document?: string | null
+          store_email?: string | null
+          store_phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_demo?: boolean
+          logo_url?: string | null
+          name?: string
+          primary_color?: string | null
+          slug?: string
+          status?: string
+          status_changed_at?: string | null
+          status_reason?: string | null
+          store_address?: string | null
+          store_document?: string | null
+          store_email?: string | null
+          store_phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          active: boolean
+          barcode: string | null
+          code: string
+          cost_price: number
+          created_at: string
+          id: string
+          last_updated_by: string | null
+          low_stock: boolean | null
+          min_stock: number
+          name: string
+          organization_id: string
+          sale_price: number
+          stock_quantity: number
+          supplier_id: string | null
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          barcode?: string | null
+          code: string
+          cost_price?: number
+          created_at?: string
+          id?: string
+          last_updated_by?: string | null
+          low_stock?: boolean | null
+          min_stock?: number
+          name: string
+          organization_id: string
+          sale_price?: number
+          stock_quantity?: number
+          supplier_id?: string | null
+          unit?: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          barcode?: string | null
+          code?: string
+          cost_price?: number
+          created_at?: string
+          id?: string
+          last_updated_by?: string | null
+          low_stock?: boolean | null
+          min_stock?: number
+          name?: string
+          organization_id?: string
+          sale_price?: number
+          stock_quantity?: number
+          supplier_id?: string | null
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_supplier_id_organization_id_fkey"
+            columns: ["supplier_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id", "organization_id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          email: string | null
+          full_name: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          email?: string | null
+          full_name?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          email?: string | null
+          full_name?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      quote_items: {
+        Row: {
+          id: string
+          organization_id: string
+          position: number
+          product_code: string
+          product_id: string
+          product_name: string
+          quantity: number
+          quote_id: string
+          total: number
+          unit: string
+          unit_price: number
+        }
+        Insert: {
+          id?: string
+          organization_id: string
+          position?: number
+          product_code: string
+          product_id: string
+          product_name: string
+          quantity: number
+          quote_id: string
+          total: number
+          unit: string
+          unit_price: number
+        }
+        Update: {
+          id?: string
+          organization_id?: string
+          position?: number
+          product_code?: string
+          product_id?: string
+          product_name?: string
+          quantity?: number
+          quote_id?: string
+          total?: number
+          unit?: string
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_items_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_items_product_id_organization_id_fkey"
+            columns: ["product_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id", "organization_id"]
+          },
+          {
+            foreignKeyName: "quote_items_quote_id_organization_id_fkey"
+            columns: ["quote_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id", "organization_id"]
+          },
+        ]
+      }
+      quotes: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          customer_id: string | null
+          customer_name: string | null
+          discount: number
+          id: string
+          last_updated_by: string | null
+          notes: string | null
+          number: number
+          organization_id: string
+          sale_id: string | null
+          status: string
+          subtotal: number
+          total: number
+          updated_at: string
+          valid_until: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          customer_name?: string | null
+          discount?: number
+          id?: string
+          last_updated_by?: string | null
+          notes?: string | null
+          number: number
+          organization_id: string
+          sale_id?: string | null
+          status?: string
+          subtotal?: number
+          total?: number
+          updated_at?: string
+          valid_until: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          customer_name?: string | null
+          discount?: number
+          id?: string
+          last_updated_by?: string | null
+          notes?: string | null
+          number?: number
+          organization_id?: string
+          sale_id?: string | null
+          status?: string
+          subtotal?: number
+          total?: number
+          updated_at?: string
+          valid_until?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotes_customer_id_organization_id_fkey"
+            columns: ["customer_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id", "organization_id"]
+          },
+          {
+            foreignKeyName: "quotes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_sale_id_organization_id_fkey"
+            columns: ["sale_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
+            referencedColumns: ["id", "organization_id"]
+          },
+        ]
+      }
+      sale_items: {
+        Row: {
+          id: string
+          organization_id: string
+          product_code: string
+          product_id: string
+          product_name: string
+          quantity: number
+          sale_id: string
+          total: number
+          unit: string
+          unit_price: number
+        }
+        Insert: {
+          id?: string
+          organization_id: string
+          product_code: string
+          product_id: string
+          product_name: string
+          quantity: number
+          sale_id: string
+          total: number
+          unit: string
+          unit_price: number
+        }
+        Update: {
+          id?: string
+          organization_id?: string
+          product_code?: string
+          product_id?: string
+          product_name?: string
+          quantity?: number
+          sale_id?: string
+          total?: number
+          unit?: string
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sale_items_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sale_items_product_id_organization_id_fkey"
+            columns: ["product_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id", "organization_id"]
+          },
+          {
+            foreignKeyName: "sale_items_sale_id_organization_id_fkey"
+            columns: ["sale_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
+            referencedColumns: ["id", "organization_id"]
+          },
+        ]
+      }
+      sales: {
+        Row: {
+          amount_received: number | null
+          cancel_reason: string | null
+          canceled_at: string | null
+          canceled_by: string | null
+          change_amount: number | null
+          created_at: string
+          created_by: string | null
+          customer_id: string | null
+          discount: number
+          id: string
+          notes: string | null
+          number: number
+          organization_id: string
+          payment_method: string
+          status: string
+          subtotal: number
+          total: number
+        }
+        Insert: {
+          amount_received?: number | null
+          cancel_reason?: string | null
+          canceled_at?: string | null
+          canceled_by?: string | null
+          change_amount?: number | null
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          discount?: number
+          id?: string
+          notes?: string | null
+          number: number
+          organization_id: string
+          payment_method: string
+          status?: string
+          subtotal: number
+          total: number
+        }
+        Update: {
+          amount_received?: number | null
+          cancel_reason?: string | null
+          canceled_at?: string | null
+          canceled_by?: string | null
+          change_amount?: number | null
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          discount?: number
+          id?: string
+          notes?: string | null
+          number?: number
+          organization_id?: string
+          payment_method?: string
+          status?: string
+          subtotal?: number
+          total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_customer_id_organization_id_fkey"
+            columns: ["customer_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id", "organization_id"]
+          },
+          {
+            foreignKeyName: "sales_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stock_movements: {
+        Row: {
+          balance_after: number
+          created_at: string
+          created_by: string | null
+          id: string
+          kind: string
+          notes: string | null
+          organization_id: string
+          product_id: string
+          quantity_delta: number
+          reference: string | null
+          sale_id: string | null
+          supplier_id: string | null
+          unit_cost: number | null
+        }
+        Insert: {
+          balance_after: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind: string
+          notes?: string | null
+          organization_id: string
+          product_id: string
+          quantity_delta: number
+          reference?: string | null
+          sale_id?: string | null
+          supplier_id?: string | null
+          unit_cost?: number | null
+        }
+        Update: {
+          balance_after?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind?: string
+          notes?: string | null
+          organization_id?: string
+          product_id?: string
+          quantity_delta?: number
+          reference?: string | null
+          sale_id?: string | null
+          supplier_id?: string | null
+          unit_cost?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_movements_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_movements_product_id_organization_id_fkey"
+            columns: ["product_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id", "organization_id"]
+          },
+          {
+            foreignKeyName: "stock_movements_sale_fk"
+            columns: ["sale_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
+            referencedColumns: ["id", "organization_id"]
+          },
+          {
+            foreignKeyName: "stock_movements_supplier_id_organization_id_fkey"
+            columns: ["supplier_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id", "organization_id"]
+          },
+        ]
+      }
+      subscription_payments: {
+        Row: {
+          asaas_subscription_id: string
+          billing_type: string | null
+          deleted: boolean
+          due_date: string
+          id: string
+          invoice_error: string | null
+          invoice_id: string | null
+          invoice_number: string | null
+          invoice_pdf_url: string | null
+          invoice_status: string | null
+          invoice_url: string | null
+          organization_id: string
+          paid_at: string | null
+          status: string
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          asaas_subscription_id: string
+          billing_type?: string | null
+          deleted?: boolean
+          due_date: string
+          id: string
+          invoice_error?: string | null
+          invoice_id?: string | null
+          invoice_number?: string | null
+          invoice_pdf_url?: string | null
+          invoice_status?: string | null
+          invoice_url?: string | null
+          organization_id: string
+          paid_at?: string | null
+          status: string
+          updated_at?: string
+          value: number
+        }
+        Update: {
+          asaas_subscription_id?: string
+          billing_type?: string | null
+          deleted?: boolean
+          due_date?: string
+          id?: string
+          invoice_error?: string | null
+          invoice_id?: string | null
+          invoice_number?: string | null
+          invoice_pdf_url?: string | null
+          invoice_status?: string | null
+          invoice_url?: string | null
+          organization_id?: string
+          paid_at?: string | null
+          status?: string
+          updated_at?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_payments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriptions: {
+        Row: {
+          asaas_customer_id: string
+          asaas_subscription_id: string
+          billing_document: string
+          billing_email: string
+          billing_name: string
+          canceled_at: string | null
+          created_at: string
+          created_by: string | null
+          cycle: string
+          nfse_configured_at: string | null
+          organization_id: string
+          plan: string
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          asaas_customer_id: string
+          asaas_subscription_id: string
+          billing_document: string
+          billing_email: string
+          billing_name: string
+          canceled_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          cycle: string
+          nfse_configured_at?: string | null
+          organization_id: string
+          plan: string
+          updated_at?: string
+          value: number
+        }
+        Update: {
+          asaas_customer_id?: string
+          asaas_subscription_id?: string
+          billing_document?: string
+          billing_email?: string
+          billing_name?: string
+          canceled_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          cycle?: string
+          nfse_configured_at?: string | null
+          organization_id?: string
+          plan?: string
+          updated_at?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      suppliers: {
+        Row: {
+          active: boolean
+          contact_name: string | null
+          created_at: string
+          document: string | null
+          email: string | null
+          id: string
+          last_updated_by: string | null
+          name: string
+          notes: string | null
+          organization_id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          contact_name?: string | null
+          created_at?: string
+          document?: string | null
+          email?: string | null
+          id?: string
+          last_updated_by?: string | null
+          name: string
+          notes?: string | null
+          organization_id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          contact_name?: string | null
+          created_at?: string
+          document?: string | null
+          email?: string | null
+          id?: string
+          last_updated_by?: string | null
+          name?: string
+          notes?: string | null
+          organization_id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "suppliers_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_requests: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          email_status: string
+          id: string
+          kind: string
+          message: string
+          organization_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          email_status?: string
+          id?: string
+          kind: string
+          message: string
+          organization_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          email_status?: string
+          id?: string
+          kind?: string
+          message?: string
+          organization_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_requests_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      accept_invite: { Args: { invite_token: string }; Returns: string }
+      cancel_quote: {
+        Args: { p_quote_id: string }
+        Returns: {
+          created_at: string
+          created_by: string | null
+          customer_id: string | null
+          customer_name: string | null
+          discount: number
+          id: string
+          last_updated_by: string | null
+          notes: string | null
+          number: number
+          organization_id: string
+          sale_id: string | null
+          status: string
+          subtotal: number
+          total: number
+          updated_at: string
+          valid_until: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "quotes"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      cancel_sale: {
+        Args: { p_reason: string; p_sale_id: string }
+        Returns: {
+          amount_received: number | null
+          cancel_reason: string | null
+          canceled_at: string | null
+          canceled_by: string | null
+          change_amount: number | null
+          created_at: string
+          created_by: string | null
+          customer_id: string | null
+          discount: number
+          id: string
+          notes: string | null
+          number: number
+          organization_id: string
+          payment_method: string
+          status: string
+          subtotal: number
+          total: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "sales"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      convert_quote: {
+        Args: {
+          p_amount_received?: number
+          p_payment_method: string
+          p_quote_id: string
+        }
+        Returns: {
+          amount_received: number | null
+          cancel_reason: string | null
+          canceled_at: string | null
+          canceled_by: string | null
+          change_amount: number | null
+          created_at: string
+          created_by: string | null
+          customer_id: string | null
+          discount: number
+          id: string
+          notes: string | null
+          number: number
+          organization_id: string
+          payment_method: string
+          status: string
+          subtotal: number
+          total: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "sales"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      create_organization_and_join: {
+        Args: { org_name: string; org_slug: string }
+        Returns: string
+      }
+      finalize_sale: {
+        Args: {
+          p_amount_received?: number
+          p_customer_id?: string
+          p_discount?: number
+          p_items: Json
+          p_notes?: string
+          p_organization_id: string
+          p_payment_method: string
+        }
+        Returns: {
+          amount_received: number | null
+          cancel_reason: string | null
+          canceled_at: string | null
+          canceled_by: string | null
+          change_amount: number | null
+          created_at: string
+          created_by: string | null
+          customer_id: string | null
+          discount: number
+          id: string
+          notes: string | null
+          number: number
+          organization_id: string
+          payment_method: string
+          status: string
+          subtotal: number
+          total: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "sales"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      get_invite_summary: {
+        Args: { invite_token: string }
+        Returns: {
+          already_accepted: boolean
+          email: string
+          expires_at: string
+          invited_by_name: string
+          organization_id: string
+          organization_name: string
+          role: string
+        }[]
+      }
+      my_pending_invites: {
+        Args: never
+        Returns: {
+          expires_at: string
+          organization_name: string
+          role: string
+          token: string
+        }[]
+      }
+      record_stock_movement: {
+        Args: {
+          p_kind: string
+          p_notes?: string
+          p_product_id: string
+          p_quantity: number
+          p_reference?: string
+          p_supplier_id?: string
+          p_unit_cost?: number
+        }
+        Returns: {
+          balance_after: number
+          created_at: string
+          created_by: string | null
+          id: string
+          kind: string
+          notes: string | null
+          organization_id: string
+          product_id: string
+          quantity_delta: number
+          reference: string | null
+          sale_id: string | null
+          supplier_id: string | null
+          unit_cost: number | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "stock_movements"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      save_quote: {
+        Args: {
+          p_customer_id?: string
+          p_customer_name?: string
+          p_discount?: number
+          p_items: Json
+          p_notes?: string
+          p_organization_id: string
+          p_quote_id: string | null
+          p_valid_until: string
+        }
+        Returns: {
+          created_at: string
+          created_by: string | null
+          customer_id: string | null
+          customer_name: string | null
+          discount: number
+          id: string
+          last_updated_by: string | null
+          notes: string | null
+          number: number
+          organization_id: string
+          sale_id: string | null
+          status: string
+          subtotal: number
+          total: number
+          updated_at: string
+          valid_until: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "quotes"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      update_store_profile: {
+        Args: {
+          p_address: string
+          p_document: string
+          p_email: string
+          p_organization_id: string
+          p_phone: string
+        }
+        Returns: undefined
+      }
+      user_admin_organization_ids: { Args: never; Returns: string[] }
+      user_organization_ids: { Args: never; Returns: string[] }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+}
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never) = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never) = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {},
+  },
+} as const
