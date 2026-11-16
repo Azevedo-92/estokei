@@ -11,7 +11,7 @@ export default function EntrarPage() {
       className="min-h-screen flex items-center justify-center px-4 py-12"
       style={{
         background:
-          'radial-gradient(1200px 600px at 100% -10%, rgba(30,64,175,0.10), transparent 60%), radial-gradient(900px 500px at -10% 110%, rgba(79,70,229,0.08), transparent 55%), #fafafa',
+          'radial-gradient(1200px 600px at 100% -10%, rgba(234,88,12,0.10), transparent 60%), radial-gradient(900px 500px at -10% 110%, rgba(251,146,60,0.08), transparent 55%), #fafafa',
       }}
     >
       <div className="w-full max-w-sm">

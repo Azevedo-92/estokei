@@ -14,6 +14,9 @@ export default function robots(): MetadataRoute.Robots {
       disallow: [
         '/api/',
         '/painel',
+        '/pdv',
+        '/vendas',
+        '/clientes',
         '/produtos',
         '/estoque',
         '/fornecedores',

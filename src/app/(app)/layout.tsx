@@ -120,7 +120,7 @@ export default async function AppLayout({
     <div style={brandStyle}>
       <AppShell sidebar={sidebar}>
           {overdue ? (
-            <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900">
+            <div className="mb-6 print:hidden flex flex-wrap items-center justify-between gap-3 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900">
               <span>
                 A mensalidade de {formatDateBR(overdue.payment.due_date)} está em aberto. Pague até{' '}
                 <strong>{formatDateBR(overdue.suspendOn)}</strong> para o acesso da equipe não ser

@@ -169,7 +169,7 @@ export default async function ProdutoPage({
                     <td className="px-4 py-3 text-muted-foreground">
                       {[
                         m.suppliers?.name,
-                        m.reference ? `NF ${m.reference}` : null,
+                        m.reference ? (m.kind === 'entrada' ? `NF ${m.reference}` : m.reference) : null,
                         m.unit_cost !== null ? `custo ${formatCurrencyBRL(m.unit_cost)}` : null,
                         m.notes,
                       ]

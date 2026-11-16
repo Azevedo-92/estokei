@@ -14,8 +14,8 @@ alterado a partir daqui. Mantido pela Client Cycle Consultoria em TI Ltda.
 assinatura cobrada pelo Asaas (veja "Cobrança"). A primeira liberação de cada
 empresa é manual, em `/plataforma`.
 
-**Estado atual:** fundação SaaS + produtos, fornecedores e estoque prontos.
-PDV, clientes, orçamentos e financeiro entram nas próximas etapas. **O Estokei ainda não emite nota fiscal de venda**
+**Estado atual:** fundação SaaS + produtos, fornecedores, estoque, clientes e
+PDV (vendas) prontos. Orçamentos e financeiro entram nas próximas etapas. **O Estokei ainda não emite nota fiscal de venda**
 (NFC-e/NF-e) — não prometa isso em texto nenhum até existir.
 
 - Produção: https://estokei.app.br (Vercel) — domínio a registrar/apontar
@@ -40,7 +40,7 @@ npm test           # testes (Vitest) — regras puras de src/lib
 ```
 
 Os testes (`src/**/*.test.ts`) cobrem as regras puras: datas e fuso
-(`utils`), números e busca do estoque (`stock`), planos e situação da cobrança (`billing`), nota fiscal da assinatura
+(`utils`), números e busca do estoque (`stock`), totais do PDV (`pos`), planos e situação da cobrança (`billing`), nota fiscal da assinatura
 (`nfse`) e permissão da plataforma (`platform`).
 Rodam com fuso de Nova York de propósito — a regra tem que valer em qualquer
 fuso. A esteira de deploy roda `npm test` antes das migrations. Mexeu numa regra
@@ -209,7 +209,7 @@ aqui).
 `my_pending_invites`, `handle_new_user` (cria `profiles`), `protect_last_owner`
 (impede remover o último dono), `touch_updated_at`, `set_last_updated_by`,
 `products_set_code` e `record_stock_movement` (veja "Produtos, fornecedores e
-estoque").
+estoque"), `finalize_sale` e `cancel_sale` (veja "Clientes e vendas").
 
 ## Produtos, fornecedores e estoque
 
@@ -233,6 +233,31 @@ grants de coluna impedem `update products set stock_quantity` direto. As
 mensagens de erro da função são escritas para o usuário e repassadas pela
 action. Cadastrar produto, fornecedor e movimentar estoque: só dono/admin
 (RLS + checagem na action); todos da equipe consultam.
+
+## Clientes e vendas (PDV)
+
+Migration `20261116180000_clientes_vendas.sql`. Telas em `/pdv`, `/vendas` e
+`/clientes`; regras puras do carrinho em `src/lib/pos.ts` (testada).
+
+- `customers` — toda a equipe cadastra e edita (o caixa cadastra no balcão);
+  apagar só dono/admin, e cliente com venda não se apaga (FK restrict).
+- `sales` — número sequencial por empresa (`#1`, `#2`…), `payment_method`
+  dinheiro/pix/debito/credito/fiado/outro (fiado exige cliente), `status`
+  concluida/cancelada. `sale_items` guarda cópia de código, nome, unidade e
+  preço do produto no momento da venda.
+- `stock_movements.sale_id` liga os movimentos `venda`/`estorno` à venda.
+
+**A venda inteira é feita pela função `finalize_sale`** (SECURITY DEFINER,
+qualquer membro da empresa): o preço vem do cadastro do produto (nunca do
+navegador), trava as linhas dos produtos em ordem de id, recusa estoque
+insuficiente e produto inativo, baixa o saldo e grava venda, itens e
+movimentos numa transação. `cancel_sale` (só dono/admin, exige motivo) devolve
+o estoque com movimentos `estorno`. Vendas e itens não têm insert/update/delete
+pela API. O total mostrado no PDV (`cartTotals`) repete a conta do banco só
+para exibição — o valor gravado é o do banco.
+
+Cupom não fiscal em `/vendas/[id]` (impressão do navegador; `?imprimir=1` abre
+a impressão). O menu e a barra lateral somem na impressão (`print:hidden`).
 
 ## Módulos da loja (a construir)
 

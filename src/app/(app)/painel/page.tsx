@@ -1,28 +1,30 @@
 import Link from 'next/link'
-import { Boxes, ShoppingCart, Wallet, UsersRound, Package, AlertTriangle, Truck } from 'lucide-react'
+import { Boxes, ShoppingCart, Wallet, UsersRound, Package, AlertTriangle, Users, FileText, Receipt } from 'lucide-react'
 import { requireOrganization } from '@/lib/auth'
 import { SITE_NAME } from '@/lib/site'
 import { createClient } from '@/lib/supabase/server'
+import { formatCurrencyBRL } from '@/lib/utils'
+import { salesSummary, startOfDaySP } from '../vendas/sales-summary'
 
 export const metadata = { title: 'Painel' }
 
-// Os módulos que ainda faltam (PDV, financeiro) entram nas próximas etapas e
-// passam a alimentar os indicadores desta tela.
+// Os módulos que ainda faltam (orçamentos, financeiro) entram nas próximas
+// etapas e passam a alimentar os indicadores desta tela.
 const MODULES = [
-  { icon: ShoppingCart, title: 'Vendas e PDV', text: 'Venda no balcão, orçamentos em PDF e histórico.' },
+  { icon: FileText, title: 'Orçamentos', text: 'Orçamento em PDF com a sua marca, que vira venda com um clique.' },
   { icon: Wallet, title: 'Financeiro', text: 'Contas a pagar e a receber, fluxo de caixa.' },
 ]
 
 export default async function PainelPage() {
   const { organization } = await requireOrganization()
   const supabase = await createClient()
-  const base = (table: 'products' | 'suppliers') =>
+  const base = (table: 'products' | 'customers') =>
     supabase
       .from(table)
       .select('id', { count: 'exact', head: true })
       .eq('organization_id', organization.id)
       .eq('active', true)
-  const [{ count: products }, { count: low }, { count: suppliers }] = await Promise.all([
+  const [{ count: products }, { count: low }, { count: customers }, today] = await Promise.all([
     base('products'),
     supabase
       .from('products')
@@ -30,12 +32,14 @@ export default async function PainelPage() {
       .eq('organization_id', organization.id)
       .eq('active', true)
       .eq('low_stock', true),
-    base('suppliers'),
+    base('customers'),
+    salesSummary(supabase, organization.id, startOfDaySP(0)),
   ])
   const STATS = [
+    { icon: Receipt, label: `Vendido hoje (${today.count} venda${today.count === 1 ? '' : 's'})`, value: formatCurrencyBRL(today.total), href: '/vendas' },
     { icon: Package, label: 'Produtos ativos', value: products ?? 0, href: '/produtos' },
     { icon: AlertTriangle, label: 'Com estoque baixo', value: low ?? 0, href: '/produtos?filtro=baixo', alert: (low ?? 0) > 0 },
-    { icon: Truck, label: 'Fornecedores', value: suppliers ?? 0, href: '/fornecedores' },
+    { icon: Users, label: 'Clientes', value: customers ?? 0, href: '/clientes' },
   ]
 
   return (
@@ -47,7 +51,21 @@ export default async function PainelPage() {
         </p>
       </header>
 
-      <section className="grid gap-4 sm:grid-cols-3">
+      <Link
+        href="/pdv"
+        className="flex items-center justify-between gap-4 rounded-lg border bg-primary p-5 text-primary-foreground hover:bg-primary/90"
+      >
+        <span className="flex items-center gap-3">
+          <ShoppingCart className="h-6 w-6" aria-hidden />
+          <span>
+            <span className="block text-lg font-semibold">Abrir o PDV</span>
+            <span className="block text-sm opacity-90">Venda no balcão com baixa automática no estoque</span>
+          </span>
+        </span>
+        <span aria-hidden className="text-2xl">→</span>
+      </Link>
+
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {STATS.map(({ icon: Icon, label, value, href, alert }) => (
           <Link key={label} href={href} className="rounded-lg border bg-card p-5 hover:bg-accent/40">
             <Icon className={alert ? 'h-5 w-5 text-rose-600' : 'h-5 w-5'} style={alert ? undefined : { color: 'var(--brand)' }} aria-hidden />

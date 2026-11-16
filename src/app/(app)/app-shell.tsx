@@ -41,7 +41,7 @@ export function AppShell({
   return (
     <div className="app-shell min-h-screen md:flex">
       {/* Barra superior — só mobile */}
-      <div className="md:hidden sticky top-0 z-30 flex items-center justify-between border-b bg-background/90 backdrop-blur h-14 px-4">
+      <div className="md:hidden print:hidden sticky top-0 z-30 flex items-center justify-between border-b bg-background/90 backdrop-blur h-14 px-4">
         <EstokeiMark />
         <button
           type="button"
@@ -65,7 +65,7 @@ export function AppShell({
       {/* Sidebar */}
       <aside
         className={`
-          fixed inset-y-0 left-0 z-50 w-64 shrink-0 border-r bg-sidebar/95 backdrop-blur flex flex-col
+          print:hidden fixed inset-y-0 left-0 z-50 w-64 shrink-0 border-r bg-sidebar/95 backdrop-blur flex flex-col
           transition-transform duration-200 ease-out
           md:sticky md:top-0 md:h-screen md:translate-x-0
           ${open ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
@@ -85,7 +85,7 @@ export function AppShell({
       </aside>
 
       <main className="flex-1 min-w-0">
-        <div className="mx-auto max-w-6xl px-4 md:px-8 py-6 md:py-8">
+        <div className="mx-auto max-w-6xl px-4 md:px-8 py-6 md:py-8 print:p-0">
           {children}
         </div>
       </main>
