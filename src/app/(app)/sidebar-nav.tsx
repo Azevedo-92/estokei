@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   ShoppingCart,
   Receipt,
+  FileText,
   Users,
   Package,
   ArrowLeftRight,
@@ -30,6 +31,7 @@ type NavItem = {
 const NAV: NavItem[] = [
   { href: '/painel', label: 'Painel', icon: LayoutDashboard, match: (p) => p === '/painel' },
   { href: '/pdv', label: 'PDV', icon: ShoppingCart, match: (p) => p.startsWith('/pdv') },
+  { href: '/orcamentos', label: 'Orçamentos', icon: FileText, match: (p) => p.startsWith('/orcamentos') },
   { href: '/vendas', label: 'Vendas', icon: Receipt, match: (p) => p.startsWith('/vendas') },
   { href: '/clientes', label: 'Clientes', icon: Users, match: (p) => p.startsWith('/clientes') },
   { href: '/produtos', label: 'Produtos', icon: Package, match: (p) => p.startsWith('/produtos') },
@@ -38,7 +40,7 @@ const NAV: NavItem[] = [
   { href: '/equipe', label: 'Equipe', icon: UsersRound, match: (p) => p.startsWith('/equipe') },
   {
     href: '/configuracoes/marca',
-    label: 'Marca',
+    label: 'Marca e loja',
     icon: Palette,
     match: (p) => p.startsWith('/configuracoes/marca'),
   },

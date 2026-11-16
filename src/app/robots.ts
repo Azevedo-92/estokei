@@ -15,6 +15,7 @@ export default function robots(): MetadataRoute.Robots {
         '/api/',
         '/painel',
         '/pdv',
+        '/orcamentos',
         '/vendas',
         '/clientes',
         '/produtos',

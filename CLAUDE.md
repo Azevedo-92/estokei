@@ -14,8 +14,8 @@ alterado a partir daqui. Mantido pela Client Cycle Consultoria em TI Ltda.
 assinatura cobrada pelo Asaas (veja "Cobrança"). A primeira liberação de cada
 empresa é manual, em `/plataforma`.
 
-**Estado atual:** fundação SaaS + produtos, fornecedores, estoque, clientes e
-PDV (vendas) prontos. Orçamentos e financeiro entram nas próximas etapas. **O Estokei ainda não emite nota fiscal de venda**
+**Estado atual:** fundação SaaS + produtos, fornecedores, estoque, clientes,
+PDV (vendas) e orçamentos em PDF prontos. Financeiro entra na próxima etapa. **O Estokei ainda não emite nota fiscal de venda**
 (NFC-e/NF-e) — não prometa isso em texto nenhum até existir.
 
 - Produção: https://estokei.app.br (Vercel) — domínio a registrar/apontar
@@ -40,7 +40,7 @@ npm test           # testes (Vitest) — regras puras de src/lib
 ```
 
 Os testes (`src/**/*.test.ts`) cobrem as regras puras: datas e fuso
-(`utils`), números e busca do estoque (`stock`), totais do PDV (`pos`), planos e situação da cobrança (`billing`), nota fiscal da assinatura
+(`utils`), números e busca do estoque (`stock`), totais do PDV (`pos`), orçamentos (`quotes`), CPF/CNPJ e telefone (`store-profile`), planos e situação da cobrança (`billing`), nota fiscal da assinatura
 (`nfse`) e permissão da plataforma (`platform`).
 Rodam com fuso de Nova York de propósito — a regra tem que valer em qualquer
 fuso. A esteira de deploy roda `npm test` antes das migrations. Mexeu numa regra
@@ -209,7 +209,9 @@ aqui).
 `my_pending_invites`, `handle_new_user` (cria `profiles`), `protect_last_owner`
 (impede remover o último dono), `touch_updated_at`, `set_last_updated_by`,
 `products_set_code` e `record_stock_movement` (veja "Produtos, fornecedores e
-estoque"), `finalize_sale` e `cancel_sale` (veja "Clientes e vendas").
+estoque"), `finalize_sale`, `cancel_sale` e `_record_sale` (veja "Clientes e
+vendas"), `save_quote`, `cancel_quote`, `convert_quote` e `update_store_profile`
+(veja "Orçamentos e dados da loja").
 
 ## Produtos, fornecedores e estoque
 
@@ -258,6 +260,31 @@ para exibição — o valor gravado é o do banco.
 
 Cupom não fiscal em `/vendas/[id]` (impressão do navegador; `?imprimir=1` abre
 a impressão). O menu e a barra lateral somem na impressão (`print:hidden`).
+
+## Orçamentos e dados da loja
+
+Migration `20261116200000_orcamentos.sql`. Telas em `/orcamentos` (lista,
+novo, editar, detalhe, `/orcamentos/[id]/pdf`); regras puras em
+`src/lib/quotes.ts` (testada).
+
+- `quotes` / `quote_items` — número sequencial por empresa, `status`
+  aberto/convertido/cancelado ("vencido" não é gravado: é aberto com
+  `valid_until` no passado, `quoteDisplayStatus`). Cliente cadastrado
+  (`customer_id`) ou só o nome (`customer_name`). Escrita só pelas funções.
+- `save_quote` (toda a equipe) grava os itens com o **preço do cadastro no
+  momento de salvar**; editar de novo atualiza preços. Validade entre hoje e
+  um ano. Só orçamento aberto se edita.
+- `convert_quote` vende com os **preços e o desconto do orçamento**, só se
+  aberto e dentro da validade (vencido: editar e salvar de novo). Usa
+  `_record_sale`, a mesma rotina do PDV (trava, estoque, movimentos).
+  `_record_sale` é interna: sem EXECUTE para anon/authenticated — o
+  `finalize_sale` descarta qualquer `unit_price` vindo do navegador.
+- Dados da loja: `organizations.store_document/phone/email/address`, editados
+  em Configurações → Marca e loja pela função `update_store_profile`
+  (dono/admin; usuário não tem UPDATE em organizations). Saem no PDF e no cupom.
+- PDF com `@react-pdf/renderer` (logo convertido para PNG com `sharp`, só do
+  storage do Supabase, como no ClientCycle). WhatsApp: link `wa.me` com o
+  resumo em texto (`quoteWhatsappText`); o PDF é baixado e anexado à mão.
 
 ## Módulos da loja (a construir)
 

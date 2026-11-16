@@ -8,10 +8,8 @@ import { salesSummary, startOfDaySP } from '../vendas/sales-summary'
 
 export const metadata = { title: 'Painel' }
 
-// Os módulos que ainda faltam (orçamentos, financeiro) entram nas próximas
-// etapas e passam a alimentar os indicadores desta tela.
+// O financeiro entra na próxima etapa e passa a alimentar os indicadores desta tela.
 const MODULES = [
-  { icon: FileText, title: 'Orçamentos', text: 'Orçamento em PDF com a sua marca, que vira venda com um clique.' },
   { icon: Wallet, title: 'Financeiro', text: 'Contas a pagar e a receber, fluxo de caixa.' },
 ]
 
@@ -93,6 +91,17 @@ export default async function PainelPage() {
           </div>
         </section>
       ) : null}
+
+      <Link
+        href="/orcamentos/novo"
+        className="flex items-center gap-3 rounded-lg border bg-card p-5 hover:bg-accent/40"
+      >
+        <FileText className="h-5 w-5 shrink-0" style={{ color: 'var(--brand)' }} aria-hidden />
+        <span>
+          <span className="block text-sm font-semibold">Novo orçamento</span>
+          <span className="block text-sm text-muted-foreground">PDF com a sua marca, que vira venda com um clique.</span>
+        </span>
+      </Link>
 
       <section className="grid gap-4 sm:grid-cols-2">
         {MODULES.map(({ icon: Icon, title, text }) => (

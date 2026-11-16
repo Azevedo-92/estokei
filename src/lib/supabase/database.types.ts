@@ -175,6 +175,10 @@ export type Database = {
           status: string
           status_changed_at: string | null
           status_reason: string | null
+          store_address: string | null
+          store_document: string | null
+          store_email: string | null
+          store_phone: string | null
           updated_at: string
         }
         Insert: {
@@ -188,6 +192,10 @@ export type Database = {
           status?: string
           status_changed_at?: string | null
           status_reason?: string | null
+          store_address?: string | null
+          store_document?: string | null
+          store_email?: string | null
+          store_phone?: string | null
           updated_at?: string
         }
         Update: {
@@ -201,6 +209,10 @@ export type Database = {
           status?: string
           status_changed_at?: string | null
           status_reason?: string | null
+          store_address?: string | null
+          store_document?: string | null
+          store_email?: string | null
+          store_phone?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -297,6 +309,149 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      quote_items: {
+        Row: {
+          id: string
+          organization_id: string
+          position: number
+          product_code: string
+          product_id: string
+          product_name: string
+          quantity: number
+          quote_id: string
+          total: number
+          unit: string
+          unit_price: number
+        }
+        Insert: {
+          id?: string
+          organization_id: string
+          position?: number
+          product_code: string
+          product_id: string
+          product_name: string
+          quantity: number
+          quote_id: string
+          total: number
+          unit: string
+          unit_price: number
+        }
+        Update: {
+          id?: string
+          organization_id?: string
+          position?: number
+          product_code?: string
+          product_id?: string
+          product_name?: string
+          quantity?: number
+          quote_id?: string
+          total?: number
+          unit?: string
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_items_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_items_product_id_organization_id_fkey"
+            columns: ["product_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id", "organization_id"]
+          },
+          {
+            foreignKeyName: "quote_items_quote_id_organization_id_fkey"
+            columns: ["quote_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id", "organization_id"]
+          },
+        ]
+      }
+      quotes: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          customer_id: string | null
+          customer_name: string | null
+          discount: number
+          id: string
+          last_updated_by: string | null
+          notes: string | null
+          number: number
+          organization_id: string
+          sale_id: string | null
+          status: string
+          subtotal: number
+          total: number
+          updated_at: string
+          valid_until: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          customer_name?: string | null
+          discount?: number
+          id?: string
+          last_updated_by?: string | null
+          notes?: string | null
+          number: number
+          organization_id: string
+          sale_id?: string | null
+          status?: string
+          subtotal?: number
+          total?: number
+          updated_at?: string
+          valid_until: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          customer_name?: string | null
+          discount?: number
+          id?: string
+          last_updated_by?: string | null
+          notes?: string | null
+          number?: number
+          organization_id?: string
+          sale_id?: string | null
+          status?: string
+          subtotal?: number
+          total?: number
+          updated_at?: string
+          valid_until?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotes_customer_id_organization_id_fkey"
+            columns: ["customer_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id", "organization_id"]
+          },
+          {
+            foreignKeyName: "quotes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_sale_id_organization_id_fkey"
+            columns: ["sale_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
+            referencedColumns: ["id", "organization_id"]
+          },
+        ]
       }
       sale_items: {
         Row: {
@@ -732,8 +887,67 @@ export type Database = {
     }
     Functions: {
       accept_invite: { Args: { invite_token: string }; Returns: string }
+      cancel_quote: {
+        Args: { p_quote_id: string }
+        Returns: {
+          created_at: string
+          created_by: string | null
+          customer_id: string | null
+          customer_name: string | null
+          discount: number
+          id: string
+          last_updated_by: string | null
+          notes: string | null
+          number: number
+          organization_id: string
+          sale_id: string | null
+          status: string
+          subtotal: number
+          total: number
+          updated_at: string
+          valid_until: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "quotes"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       cancel_sale: {
         Args: { p_reason: string; p_sale_id: string }
+        Returns: {
+          amount_received: number | null
+          cancel_reason: string | null
+          canceled_at: string | null
+          canceled_by: string | null
+          change_amount: number | null
+          created_at: string
+          created_by: string | null
+          customer_id: string | null
+          discount: number
+          id: string
+          notes: string | null
+          number: number
+          organization_id: string
+          payment_method: string
+          status: string
+          subtotal: number
+          total: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "sales"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      convert_quote: {
+        Args: {
+          p_amount_received?: number
+          p_payment_method: string
+          p_quote_id: string
+        }
         Returns: {
           amount_received: number | null
           cancel_reason: string | null
@@ -852,6 +1066,52 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      save_quote: {
+        Args: {
+          p_customer_id?: string
+          p_customer_name?: string
+          p_discount?: number
+          p_items: Json
+          p_notes?: string
+          p_organization_id: string
+          p_quote_id: string | null
+          p_valid_until: string
+        }
+        Returns: {
+          created_at: string
+          created_by: string | null
+          customer_id: string | null
+          customer_name: string | null
+          discount: number
+          id: string
+          last_updated_by: string | null
+          notes: string | null
+          number: number
+          organization_id: string
+          sale_id: string | null
+          status: string
+          subtotal: number
+          total: number
+          updated_at: string
+          valid_until: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "quotes"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      update_store_profile: {
+        Args: {
+          p_address: string
+          p_document: string
+          p_email: string
+          p_organization_id: string
+          p_phone: string
+        }
+        Returns: undefined
       }
       user_admin_organization_ids: { Args: never; Returns: string[] }
       user_organization_ids: { Args: never; Returns: string[] }

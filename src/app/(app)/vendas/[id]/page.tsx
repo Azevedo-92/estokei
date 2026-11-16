@@ -6,6 +6,7 @@ import { canManageTeam } from '@/lib/team'
 import { formatCurrencyBRL } from '@/lib/utils'
 import { formatQuantity } from '@/lib/stock'
 import { paymentLabel } from '@/lib/pos'
+import { formatDocument, formatPhoneBR, loadStoreProfile } from '@/lib/store-profile'
 import { CancelSaleForm } from './cancel-form'
 import { PrintButton } from './print-button'
 
@@ -39,7 +40,7 @@ export default async function VendaPage({
     .maybeSingle()
   if (!sale) notFound()
 
-  const [{ data: items }, { data: seller }] = await Promise.all([
+  const [{ data: items }, { data: seller }, store] = await Promise.all([
     supabase
       .from('sale_items')
       .select('id, product_id, product_code, product_name, unit, quantity, unit_price, total')
@@ -49,6 +50,7 @@ export default async function VendaPage({
     sale.created_by
       ? supabase.from('profiles').select('full_name, email').eq('user_id', sale.created_by).maybeSingle()
       : Promise.resolve({ data: null }),
+    loadStoreProfile(supabase, organization.id),
   ])
 
   const canceled = sale.status === 'cancelada'
@@ -81,6 +83,9 @@ export default async function VendaPage({
       <article className="mx-auto w-full max-w-sm rounded-lg border bg-white p-6 font-mono text-[13px] leading-relaxed text-black print:max-w-none print:border-0 print:p-0">
         <header className="text-center">
           <p className="text-base font-bold">{organization.name}</p>
+          {store.document ? <p className="text-[11px]">CNPJ/CPF {formatDocument(store.document)}</p> : null}
+          {store.address ? <p className="text-[11px]">{store.address}</p> : null}
+          {store.phone ? <p className="text-[11px]">{formatPhoneBR(store.phone)}</p> : null}
           <p className="mt-1 text-[11px] uppercase tracking-wide">Cupom não fiscal</p>
           <p className="mt-2">
             Venda #{sale.number} · {DATE_TIME.format(new Date(sale.created_at))}

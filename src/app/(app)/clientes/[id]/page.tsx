@@ -46,12 +46,17 @@ export default async function ClientePage({
     <div className="space-y-6 max-w-4xl">
       <header className="flex items-start justify-between gap-4 flex-wrap">
         <h1 className="text-2xl font-semibold tracking-tight">{c.name}</h1>
-        <Link
-          href={`/pdv?cliente=${c.id}`}
-          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-        >
-          Nova venda para este cliente
-        </Link>
+        <div className="flex flex-wrap gap-3">
+          <Link href={`/orcamentos/novo?cliente=${c.id}`} className="rounded-md border px-4 py-2 text-sm hover:bg-accent">
+            Novo orçamento
+          </Link>
+          <Link
+            href={`/pdv?cliente=${c.id}`}
+            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            Nova venda para este cliente
+          </Link>
+        </div>
       </header>
 
       {sp.salvo ? (

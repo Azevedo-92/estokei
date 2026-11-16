@@ -15,22 +15,13 @@ import {
   type PosCustomer,
   type PosProduct,
 } from './actions'
+import { useDebounced } from '../use-debounced'
 
 type Line = { product: PosProduct; quantity: number; quantityText: string }
 type Done = { saleId: string; number: number; total: number; change: number | null }
 
 const BTN_PRIMARY =
   'rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50'
-
-/** Busca com espera curta entre teclas (o leitor de código de barras digita rápido e manda Enter). */
-function useDebounced<T>(value: T, ms: number): T {
-  const [v, setV] = useState(value)
-  useEffect(() => {
-    const t = setTimeout(() => setV(value), ms)
-    return () => clearTimeout(t)
-  }, [value, ms])
-  return v
-}
 
 export function Pos({ initialCustomer }: { initialCustomer: PosCustomer | null }) {
   const [lines, setLines] = useState<Line[]>([])
