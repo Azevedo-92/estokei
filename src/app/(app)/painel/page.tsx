@@ -3,19 +3,21 @@ import { Boxes, ShoppingCart, Wallet, UsersRound, Package, AlertTriangle, Users,
 import { requireOrganization } from '@/lib/auth'
 import { SITE_NAME } from '@/lib/site'
 import { createClient } from '@/lib/supabase/server'
-import { formatCurrencyBRL } from '@/lib/utils'
+import { formatCurrencyBRL, todayISO } from '@/lib/utils'
+import { canManageTeam } from '@/lib/team'
+import { addDaysISO } from '@/lib/quotes'
+import { openSummary } from '../financeiro/finance-data'
 import { salesSummary, startOfDaySP } from '../vendas/sales-summary'
 
 export const metadata = { title: 'Painel' }
 
-// O financeiro entra na próxima etapa e passa a alimentar os indicadores desta tela.
-const MODULES = [
-  { icon: Wallet, title: 'Financeiro', text: 'Contas a pagar e a receber, fluxo de caixa.' },
-]
-
 export default async function PainelPage() {
-  const { organization } = await requireOrganization()
+  const { organization, role } = await requireOrganization()
+  const isAdmin = canManageTeam(role)
   const supabase = await createClient()
+  const todayDate = todayISO()
+  // O financeiro é só do dono/admin (o RLS também esconde dos outros).
+  const finance = isAdmin ? await openSummary(supabase, organization.id, todayDate, addDaysISO(todayDate, 7)) : null
   const base = (table: 'products' | 'customers') =>
     supabase
       .from(table)
@@ -103,18 +105,26 @@ export default async function PainelPage() {
         </span>
       </Link>
 
-      <section className="grid gap-4 sm:grid-cols-2">
-        {MODULES.map(({ icon: Icon, title, text }) => (
-          <div key={title} className="rounded-lg border bg-card p-5">
-            <Icon className="h-5 w-5" style={{ color: 'var(--brand)' }} aria-hidden />
-            <h2 className="mt-3 text-sm font-semibold">{title}</h2>
-            <p className="mt-1 text-sm text-muted-foreground">{text}</p>
-            <span className="mt-3 inline-block rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
-              Em breve
-            </span>
+      {finance ? (
+        <Link href="/financeiro" className="block rounded-lg border bg-card p-5 hover:bg-accent/40">
+          <div className="flex items-center gap-2">
+            <Wallet className="h-5 w-5" style={{ color: 'var(--brand)' }} aria-hidden />
+            <h2 className="text-sm font-semibold">Financeiro</h2>
           </div>
-        ))}
-      </section>
+          <div className="mt-3 grid gap-4 text-sm sm:grid-cols-2">
+            {(['receber', 'pagar'] as const).map((k) => (
+              <div key={k}>
+                <p className="text-xs text-muted-foreground">{k === 'receber' ? 'A receber' : 'A pagar'} em aberto</p>
+                <p className="text-lg font-semibold tabular-nums">{formatCurrencyBRL(finance[k].open)}</p>
+                <p className={finance[k].overdue > 0 ? 'text-rose-700 font-medium' : 'text-muted-foreground'}>
+                  Vencidas: {formatCurrencyBRL(finance[k].overdue)}
+                </p>
+                <p className="text-muted-foreground">Próximos 7 dias: {formatCurrencyBRL(finance[k].next7)}</p>
+              </div>
+            ))}
+          </div>
+        </Link>
+      ) : null}
 
       <section className="rounded-lg border bg-card p-5">
         <div className="flex items-start gap-3">

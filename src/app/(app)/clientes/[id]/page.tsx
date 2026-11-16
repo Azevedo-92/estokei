@@ -2,8 +2,9 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { requireOrganization } from '@/lib/auth'
 import { createClient } from '@/lib/supabase/server'
-import { cn, formatCurrencyBRL } from '@/lib/utils'
+import { cn, formatCurrencyBRL, formatDateBR } from '@/lib/utils'
 import { paymentLabel } from '@/lib/pos'
+import { canManageTeam } from '@/lib/team'
 import { CustomerForm } from '../customer-form'
 
 export const metadata = { title: 'Cliente' }
@@ -21,7 +22,7 @@ export default async function ClientePage({
   params: Promise<{ id: string }>
   searchParams: Promise<{ salvo?: string }>
 }) {
-  const { organization } = await requireOrganization()
+  const { organization, role } = await requireOrganization()
   const { id } = await params
   const sp = await searchParams
 
@@ -33,6 +34,20 @@ export default async function ClientePage({
     .eq('organization_id', organization.id)
     .maybeSingle()
   if (!c) notFound()
+
+  // Fiado em aberto: só dono/admin veem o financeiro (o RLS também filtra).
+  const { data: openDebts } = canManageTeam(role)
+    ? await supabase
+        .from('financial_entries')
+        .select('id, amount, due_date')
+        .eq('organization_id', organization.id)
+        .eq('kind', 'receber')
+        .eq('status', 'aberto')
+        .eq('customer_id', c.id)
+        .order('due_date')
+        .limit(1000)
+    : { data: null }
+  const openTotal = (openDebts ?? []).reduce((a, d) => a + Math.round(Number(d.amount) * 100), 0) / 100
 
   const { data: sales } = await supabase
     .from('sales')
@@ -61,6 +76,16 @@ export default async function ClientePage({
 
       {sp.salvo ? (
         <p className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">Cliente salvo.</p>
+      ) : null}
+
+      {openDebts && openDebts.length > 0 ? (
+        <Link
+          href={`/financeiro?tipo=receber&cliente=${c.id}`}
+          className="block rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 hover:bg-amber-100"
+        >
+          Em aberto no financeiro: <strong>{formatCurrencyBRL(openTotal)}</strong> ({openDebts.length} conta
+          {openDebts.length === 1 ? '' : 's'}, próximo vencimento {formatDateBR(openDebts[0].due_date)}).
+        </Link>
       ) : null}
 
       <section className="space-y-3">

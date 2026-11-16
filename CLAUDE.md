@@ -15,7 +15,8 @@ assinatura cobrada pelo Asaas (veja "Cobrança"). A primeira liberação de cada
 empresa é manual, em `/plataforma`.
 
 **Estado atual:** fundação SaaS + produtos, fornecedores, estoque, clientes,
-PDV (vendas) e orçamentos em PDF prontos. Financeiro entra na próxima etapa. **O Estokei ainda não emite nota fiscal de venda**
+PDV (vendas), orçamentos em PDF e financeiro (contas a receber/pagar e fluxo
+de caixa) prontos. Falta o painel completo e colocar no ar. **O Estokei ainda não emite nota fiscal de venda**
 (NFC-e/NF-e) — não prometa isso em texto nenhum até existir.
 
 - Produção: https://estokei.app.br (Vercel) — domínio a registrar/apontar
@@ -40,7 +41,7 @@ npm test           # testes (Vitest) — regras puras de src/lib
 ```
 
 Os testes (`src/**/*.test.ts`) cobrem as regras puras: datas e fuso
-(`utils`), números e busca do estoque (`stock`), totais do PDV (`pos`), orçamentos (`quotes`), CPF/CNPJ e telefone (`store-profile`), planos e situação da cobrança (`billing`), nota fiscal da assinatura
+(`utils`), números e busca do estoque (`stock`), totais do PDV (`pos`), orçamentos (`quotes`), parcelas e fluxo de caixa (`finance`), CPF/CNPJ e telefone (`store-profile`), planos e situação da cobrança (`billing`), nota fiscal da assinatura
 (`nfse`) e permissão da plataforma (`platform`).
 Rodam com fuso de Nova York de propósito — a regra tem que valer em qualquer
 fuso. A esteira de deploy roda `npm test` antes das migrations. Mexeu numa regra
@@ -211,7 +212,8 @@ aqui).
 `products_set_code` e `record_stock_movement` (veja "Produtos, fornecedores e
 estoque"), `finalize_sale`, `cancel_sale` e `_record_sale` (veja "Clientes e
 vendas"), `save_quote`, `cancel_quote`, `convert_quote` e `update_store_profile`
-(veja "Orçamentos e dados da loja").
+(veja "Orçamentos e dados da loja"). `_record_sale` e `cancel_sale` também
+mexem em `financial_entries` (veja "Financeiro").
 
 ## Produtos, fornecedores e estoque
 
@@ -285,6 +287,28 @@ novo, editar, detalhe, `/orcamentos/[id]/pdf`); regras puras em
 - PDF com `@react-pdf/renderer` (logo convertido para PNG com `sharp`, só do
   storage do Supabase, como no ClientCycle). WhatsApp: link `wa.me` com o
   resumo em texto (`quoteWhatsappText`); o PDF é baixado e anexado à mão.
+
+## Financeiro
+
+Migration `20261116220000_financeiro.sql`. Telas em `/financeiro` (a receber /
+a pagar, filtros, por cliente), `/financeiro/novo` (com parcelas mensais),
+`/financeiro/[id]` (baixa, estorno, cancelar, excluir, editar) e
+`/financeiro/fluxo` (mês a mês); regras puras em `src/lib/finance.ts` (testada).
+
+- `financial_entries` — `kind` receber/pagar, `status` aberto/pago/cancelado
+  ("vencida" não é gravado: aberta com `due_date` no passado). Parcelas: mesmo
+  `group_id`, `installment` de `installments`. Pago exige `paid_at` e
+  `paid_amount` (check).
+- **Só dono/admin** nas quatro políticas de RLS; o menu esconde (`adminOnly`)
+  e as páginas dão `notFound()` para os demais.
+- **Fiado automático:** `_record_sale` cria a conta a receber da venda fiado
+  (vencimento em 30 dias, `sale_id` preenchido). `cancel_sale` cancela a conta
+  junto; se ela já foi recebida, recusa ("estorne o recebimento antes").
+  `sale_id` e `kind` não têm grant de escrita para usuários; conta de venda não
+  se apaga (política de delete exige `sale_id is null`) nem se cancela à parte.
+- Fluxo de caixa realizado: vendas concluídas **exceto fiado** (pela data da
+  venda) + contas recebidas − contas pagas (pela data da baixa). O fiado entra
+  quando é recebido, então não conta duas vezes.
 
 ## Módulos da loja (a construir)
 

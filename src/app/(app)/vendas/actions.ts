@@ -32,7 +32,7 @@ export async function cancelSaleAction(_prev: FormState, formData: FormData): Pr
     p_reason: parsed.data.reason,
   })
   if (error) {
-    const known = ['Esta venda já foi cancelada', 'Venda não encontrada', 'Informe o motivo']
+    const known = ['Esta venda já foi cancelada', 'Esta venda fiado', 'Venda não encontrada', 'Informe o motivo']
     return {
       ok: false,
       message: known.some((k) => error.message.startsWith(k))

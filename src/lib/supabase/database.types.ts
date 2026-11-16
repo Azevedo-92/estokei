@@ -67,6 +67,110 @@ export type Database = {
           },
         ]
       }
+      financial_entries: {
+        Row: {
+          amount: number
+          category: string | null
+          created_at: string
+          created_by: string | null
+          customer_id: string | null
+          description: string
+          due_date: string
+          group_id: string | null
+          id: string
+          installment: number | null
+          installments: number | null
+          kind: string
+          last_updated_by: string | null
+          notes: string | null
+          organization_id: string
+          paid_amount: number | null
+          paid_at: string | null
+          payment_method: string | null
+          sale_id: string | null
+          status: string
+          supplier_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          description: string
+          due_date: string
+          group_id?: string | null
+          id?: string
+          installment?: number | null
+          installments?: number | null
+          kind: string
+          last_updated_by?: string | null
+          notes?: string | null
+          organization_id: string
+          paid_amount?: number | null
+          paid_at?: string | null
+          payment_method?: string | null
+          sale_id?: string | null
+          status?: string
+          supplier_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          description?: string
+          due_date?: string
+          group_id?: string | null
+          id?: string
+          installment?: number | null
+          installments?: number | null
+          kind?: string
+          last_updated_by?: string | null
+          notes?: string | null
+          organization_id?: string
+          paid_amount?: number | null
+          paid_at?: string | null
+          payment_method?: string | null
+          sale_id?: string | null
+          status?: string
+          supplier_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_entries_customer_id_organization_id_fkey"
+            columns: ["customer_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id", "organization_id"]
+          },
+          {
+            foreignKeyName: "financial_entries_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_entries_sale_id_organization_id_fkey"
+            columns: ["sale_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
+            referencedColumns: ["id", "organization_id"]
+          },
+          {
+            foreignKeyName: "financial_entries_supplier_id_organization_id_fkey"
+            columns: ["supplier_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id", "organization_id"]
+          },
+        ]
+      }
       invites: {
         Row: {
           accepted_at: string | null

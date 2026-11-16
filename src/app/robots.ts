@@ -17,6 +17,7 @@ export default function robots(): MetadataRoute.Robots {
         '/pdv',
         '/orcamentos',
         '/vendas',
+        '/financeiro',
         '/clientes',
         '/produtos',
         '/estoque',
